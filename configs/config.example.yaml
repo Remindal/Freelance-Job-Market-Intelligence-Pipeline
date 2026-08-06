@@ -1,0 +1,52 @@
+server:
+  addr: "127.0.0.1:8080"
+
+database:
+  path: "./data/scout.db"
+
+schedule:
+  interval: "15m"                   # 下限 10m，过低会触发反爬
+
+fetcher:                            # CDP 接管已运行的真实 Chrome（需以 --remote-debugging-port=9222 启动）
+  cdp_endpoint: "http://127.0.0.1:9222"
+  pages_per_feed: 1                 # 每个源翻页数（1页≈10条），上限 5
+
+feeds:                              # 搜索页 URL，可任意增删（sort=recency 保证最新在前）
+  - name: "golang"
+    url: "https://www.upwork.com/nx/search/jobs/?q=golang&sort=recency"
+  - name: "web-scraping"
+    url: "https://www.upwork.com/nx/search/jobs/?q=web%20scraping&sort=recency"
+
+client_filter:                      # 客户质量粗筛（LLM 之前）
+  stale_days: 2                     # 发布超过 N 天的单子直接淘汰
+
+filter:
+  include_keywords: ["go", "golang", "backend", "api", "fastapi", "python", "webhook", "scraper", "crawler", "automation", "websocket", "mysql", "postgresql", "redis", "rabbitmq", "docker", "openai", "chatgpt", "claude", "llm", "rag", "stripe", "shopify", "supabase", "serverless", "lambda", "cloudflare", "grpc", "microservice"]
+  exclude_keywords: ["blockchain", "crypto", "web3", "nft", "solana", "forex", "mt4", "mt5", "adult"]
+  min_budget_usd: 50
+
+llm:
+  base_url: "https://api.deepseek.com/v1"   # 任意 OpenAI 兼容端点
+  api_key: ""                                # 或用环境变量 UPWORK_SCOUT_LLM_API_KEY
+  model: "deepseek-chat"
+  timeout: 30s
+
+profile: |                          # 技能画像，注入打分 prompt
+  中国计算机专业大二学生，Go/Python 后端开发，Upwork 新号零评价，
+  现阶段核心目标：拿下小而稳的前几单积累 5 星好评，时薪 $18。
+
+  技能：Go(Gin)、Python(FastAPI)、REST API 设计与第三方 API 集成、
+  Redis、RabbitMQ、MySQL、PostgreSQL、Docker、Git、Linux 部署。
+  AI 方向：OpenAI/Claude 等 LLM API 集成、RAG、向量数据库。
+
+  项目：高并发秒杀系统（Go+Redis+RabbitMQ，5000 并发压测）、
+  教育平台（LLM 自动批改+定时邮件通知）、AI 文档平台（RAG 语义搜索）。
+
+  正在学习、模式相通可快速交付：Cloudflare Workers/KV、AWS Lambda、
+  webhook HMAC 验签、Stripe API、Shopify API、Supabase、ClickHouse。
+
+notify:
+  threshold: 70                     # ≥ 此分数才推送
+  telegram:
+    bot_token: ""                   # 或环境变量 UPWORK_SCOUT_TG_TOKEN
+    chat_id: ""                     # 或环境变量 UPWORK_SCOUT_TG_CHAT_ID

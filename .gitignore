@@ -1,0 +1,18 @@
+# 密钥与本地配置（真实 config.yaml 含 API key，绝不入库）
+configs/config.yaml
+scout.log
+
+# 运行数据（SQLite / 浏览器 profile）
+data/
+build/bin/
+build/.data-backup/
+
+# 前端
+frontend/node_modules/
+frontend/dist/
+
+# 构建产物
+*.exe
+
+# 临时脚本
+tmp_*/
