@@ -9,11 +9,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"upwork-scout/internal/domain"
-	"upwork-scout/internal/fetcher"
-	"upwork-scout/internal/filter"
-	"upwork-scout/internal/notify"
-	"upwork-scout/internal/store"
+	"github.com/Remindal/scout/internal/domain"
+	"github.com/Remindal/scout/internal/fetcher"
+	"github.com/Remindal/scout/internal/filter"
+	"github.com/Remindal/scout/internal/notify"
+	"github.com/Remindal/scout/internal/store"
 )
 
 // ErrRoundInProgress 上一轮尚未结束且已有排队请求时返回此错误。

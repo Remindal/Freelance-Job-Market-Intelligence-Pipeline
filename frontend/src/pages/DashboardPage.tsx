@@ -29,7 +29,7 @@ export default function DashboardPage() {
       {/* 标题栏 */}
       <header className="flex items-center justify-between py-4">
         <div className="flex items-center gap-2.5">
-          <h1 className="text-lg font-bold text-neutral-800">Upwork Scout</h1>
+          <h1 className="text-lg font-bold text-neutral-800">Scout</h1>
           <span className="flex items-center gap-1 text-xs text-primary">
             <span className="inline-block h-2 w-2 rounded-full bg-primary" />
             运行中

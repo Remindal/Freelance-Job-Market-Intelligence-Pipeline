@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 type keyword struct {

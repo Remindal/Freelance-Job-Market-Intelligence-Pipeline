@@ -3,7 +3,7 @@ package notify
 import (
 	"context"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 type Notifier interface {

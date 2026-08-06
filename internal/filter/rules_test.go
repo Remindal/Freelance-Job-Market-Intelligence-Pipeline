@@ -3,7 +3,7 @@ package filter
 import (
 	"testing"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 func testRules() *Rules {

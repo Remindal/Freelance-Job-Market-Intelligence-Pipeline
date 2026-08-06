@@ -17,7 +17,7 @@ func loadFixture(t *testing.T) string {
 }
 
 func TestExtractJobsFromHTML(t *testing.T) {
-	jobs := ExtractJobsFromHTML(loadFixture(t), time.Now().UTC())
+	jobs := ExtractJobsFromHTML(loadFixture(t), time.Now().UTC(), "https://example.com")
 	if len(jobs) != 3 {
 		t.Fatalf("expected 3 jobs, got %d: %+v", len(jobs), jobs)
 	}
@@ -27,7 +27,7 @@ func TestExtractJobsFromHTML(t *testing.T) {
 		t.Errorf("title mismatch: %q", fixed.Title)
 	}
 	// url 必须规范化：去 query 参数，收敛为 /jobs/~id 短链
-	if fixed.URL != "https://www.upwork.com/jobs/~01abc123def456" {
+	if fixed.URL != "https://example.com/jobs/~01abc123def456" {
 		t.Errorf("url not normalized: %q", fixed.URL)
 	}
 	if fixed.Budget != "$800" {
@@ -50,7 +50,7 @@ func TestExtractJobsFromHTML(t *testing.T) {
 	if bare.Budget != "" || len(bare.Skills) != 0 {
 		t.Errorf("missing fields should stay empty, got budget=%q skills=%v", bare.Budget, bare.Skills)
 	}
-	if bare.URL != "https://www.upwork.com/jobs/~03zzz999" {
+	if bare.URL != "https://example.com/jobs/~03zzz999" {
 		t.Errorf("fragment should be stripped: %q", bare.URL)
 	}
 }
@@ -61,7 +61,7 @@ func TestExtractJobsDedupesSameURL(t *testing.T) {
 	<article data-test="JobTile"><h3><a data-test="job-tile-title-link" href="/jobs/A_~01x?a=1">Same Job</a></h3></article>
 	<article data-test="JobTile"><h3><a data-test="job-tile-title-link" href="/jobs/span-class-highlight-A-span_~01x?b=2">Same Job</a></h3></article>
 	</body></html>`
-	jobs := ExtractJobsFromHTML(html, time.Now().UTC())
+	jobs := ExtractJobsFromHTML(html, time.Now().UTC(), "https://example.com")
 	if len(jobs) != 1 {
 		t.Fatalf("same normalized url should dedupe within page, got %d", len(jobs))
 	}
@@ -71,10 +71,10 @@ func TestIsChallengePage(t *testing.T) {
 	if !IsChallengePage("Security check", "<html></html>") {
 		t.Error("title containing 'Security check' should be detected")
 	}
-	if !IsChallengePage("Upwork", `<html><body><div class="px-captcha">verify</div></body></html>`) {
+	if !IsChallengePage("Jobs Board", `<html><body><div class="px-captcha">verify</div></body></html>`) {
 		t.Error("px-captcha element should be detected")
 	}
-	if IsChallengePage("Golang jobs - Upwork", loadFixture(t)) {
+	if IsChallengePage("Golang jobs - Example", loadFixture(t)) {
 		t.Error("normal search page must not be flagged as challenge")
 	}
 }

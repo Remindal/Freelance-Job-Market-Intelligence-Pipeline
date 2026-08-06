@@ -1,4 +1,4 @@
-﻿# 一键构建：编译 exe 并自动把配置同步到 exe 同级目录
+# 一键构建：编译 exe 并自动把配置同步到 exe 同级目录
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
 
@@ -9,7 +9,7 @@ if (Test-Path "$root\build\bin\data") {
     Copy-Item -Recurse "$root\build\bin\data" $dataBak
 }
 
-$env:UPWORK_SCOUT_CONFIG = "$root\configs\config.yaml"
+$env:SCOUT_CONFIG = "$root\configs\config.yaml"
 & "$env:USERPROFILE\go\bin\wails.exe" build -clean -webview2 embed
 if ($LASTEXITCODE -ne 0) { Write-Host "构建失败"; exit $LASTEXITCODE }
 
@@ -19,4 +19,4 @@ if (Test-Path $dataBak) {
     Copy-Item -Recurse -Force $dataBak "$root\build\bin\data"
     Remove-Item -Recurse -Force $dataBak
 }
-Write-Host "构建完成: $root\build\bin\upwork-scout.exe"
+Write-Host "构建完成: $root\build\bin\scout.exe"

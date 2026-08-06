@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 func TestParseScoreJSON(t *testing.T) {

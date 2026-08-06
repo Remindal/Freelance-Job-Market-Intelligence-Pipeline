@@ -103,7 +103,7 @@ export default function JobDetailPage() {
                 className="mb-4"
                 onClick={() => OpenInBrowser(data.url)}
               >
-                <ExternalLink className="h-3.5 w-3.5" /> 在 Upwork 打开
+                <ExternalLink className="h-3.5 w-3.5" /> 打开原帖
               </Button>
               <div className="whitespace-pre-wrap text-sm leading-7 text-neutral-700">
                 {data.description}

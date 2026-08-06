@@ -16,15 +16,15 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"upwork-scout/internal/config"
-	"upwork-scout/internal/desktop"
-	"upwork-scout/internal/fetcher"
-	"upwork-scout/internal/filter"
-	"upwork-scout/internal/llm"
-	"upwork-scout/internal/notify"
-	"upwork-scout/internal/pipeline"
-	"upwork-scout/internal/scheduler"
-	"upwork-scout/internal/store"
+	"github.com/Remindal/scout/internal/config"
+	"github.com/Remindal/scout/internal/desktop"
+	"github.com/Remindal/scout/internal/fetcher"
+	"github.com/Remindal/scout/internal/filter"
+	"github.com/Remindal/scout/internal/llm"
+	"github.com/Remindal/scout/internal/notify"
+	"github.com/Remindal/scout/internal/pipeline"
+	"github.com/Remindal/scout/internal/scheduler"
+	"github.com/Remindal/scout/internal/store"
 )
 
 //go:embed all:frontend/dist
@@ -53,7 +53,7 @@ func resolvePath(exeDir, p string) string {
 func main() {
 	exeDir := resolveExeDir()
 
-	configPath := os.Getenv("UPWORK_SCOUT_CONFIG")
+	configPath := os.Getenv("SCOUT_CONFIG")
 	if configPath == "" {
 		configPath = filepath.Join(exeDir, "configs", "config.yaml")
 	}
@@ -121,7 +121,7 @@ func main() {
 	app := desktop.NewApp(st, pl, sched, cfg.Notify.Threshold, logger)
 
 	err = wails.Run(&options.App{
-		Title:     "Upwork Scout",
+		Title:     "Scout",
 		Width:     1280,
 		Height:    800,
 		MinWidth:  1024,
@@ -142,7 +142,7 @@ func main() {
 			return true
 		},
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: "9f2c4e7a-upwork-scout-single-instance",
+			UniqueId: "9f2c4e7a-scout-single-instance",
 			OnSecondInstanceLaunch: func(data options.SecondInstanceData) {
 				ctx := app.Context()
 				if ctx != nil {
@@ -163,7 +163,7 @@ func main() {
 func runTray(app *desktop.App) {
 	systray.Run(func() {
 		systray.SetIcon(trayIcon)
-		systray.SetTooltip("Upwork Scout")
+		systray.SetTooltip("Scout")
 
 		// 每分钟刷新 tooltip 中的今日新单数
 		go func() {
@@ -171,7 +171,7 @@ func runTray(app *desktop.App) {
 			defer ticker.Stop()
 			for range ticker.C {
 				if stats, err := app.GetStats(); err == nil {
-					systray.SetTooltip(fmt.Sprintf("Upwork Scout · 今日新单 %d", stats.TodayNew))
+					systray.SetTooltip(fmt.Sprintf("Scout · 今日新单 %d", stats.TodayNew))
 				}
 			}
 		}()

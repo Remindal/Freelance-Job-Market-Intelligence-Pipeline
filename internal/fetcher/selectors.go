@@ -8,10 +8,10 @@ import (
 	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
-// Upwork 搜索页 DOM 选择器集中管理：Upwork 改 DOM 时只动这一个文件。
+// 目标站搜索页 DOM 选择器集中管理：站点改 DOM 时只动这一个文件。
 // 每个字段给一组候选选择器，按顺序取第一个命中。
 
 // CardSelectorCSS 卡片主选择器（字符串形式，供 WaitForSelector 使用）。
@@ -47,7 +47,7 @@ var (
 		`[data-test="attrs"] span`,
 	)
 	selPosted = mustCompileAll(
-		`[data-test="job-pubilshed-date"]`, // Upwork 官方属性名就是这个拼写
+		`[data-test="job-pubilshed-date"]`, // 站点官方属性名就是这个拼写（pubilshed 是上游拼写错误）
 		`[data-test="job-pub-date"]`,
 	)
 	// 人机验证特征：Cloudflare / PerimeterX 拦截页
@@ -145,15 +145,13 @@ func attr(n *html.Node, key string) string {
 	return ""
 }
 
-const upworkOrigin = "https://www.upwork.com"
-
 // jobIDRe 提取链接中的单子 ID（~01xxxx 形式）。
 var jobIDRe = regexp.MustCompile(`~([0-9a-zA-Z]+)`)
 
-// normalizeURL 规范化单子链接：去 query/fragment，并收敛为 /jobs/~id 短链。
+// normalizeURL 规范化单子链接：去 query/fragment，并收敛为 <origin>/jobs/~id 短链。
 // 搜索页会对关键词高亮，同一单在不同关键词源下 slug 不同（甚至带 span 标记残留），
-// 只有 ID 部分是稳定的，去重指纹必须用短链。
-func normalizeURL(href string) string {
+// 只有 ID 部分是稳定的，去重指纹必须用短链。origin 由调用方从 feed URL 推导。
+func normalizeURL(href, origin string) string {
 	href = strings.TrimSpace(href)
 	if href == "" {
 		return ""
@@ -162,10 +160,10 @@ func normalizeURL(href string) string {
 		href = href[:i]
 	}
 	if m := jobIDRe.FindString(href); m != "" {
-		return upworkOrigin + "/jobs/" + m
+		return origin + "/jobs/" + m
 	}
 	if strings.HasPrefix(href, "/") {
-		href = upworkOrigin + href
+		href = origin + href
 	}
 	return href
 }
@@ -218,9 +216,9 @@ func IsChallengePage(pageTitle, pageHTML string) bool {
 	return queryFirst(doc, selChallenge) != nil
 }
 
-// ExtractJobsFromHTML 从搜索页完整 HTML 提取单子卡片。
+// ExtractJobsFromHTML 从搜索页完整 HTML 提取单子卡片，origin 为站点源（如 https://example.com）。
 // 单字段缺失留空不丢整卡；只有 title+url 齐全才保留（url 是去重指纹，缺失无法入库）。
-func ExtractJobsFromHTML(pageHTML string, fetchedAt time.Time) []domain.Job {
+func ExtractJobsFromHTML(pageHTML string, fetchedAt time.Time, origin string) []domain.Job {
 	doc, err := html.Parse(strings.NewReader(pageHTML))
 	if err != nil {
 		return nil
@@ -240,7 +238,7 @@ func ExtractJobsFromHTML(pageHTML string, fetchedAt time.Time) []domain.Job {
 			continue
 		}
 		title := textContent(link)
-		url := normalizeURL(attr(link, "href"))
+		url := normalizeURL(attr(link, "href"), origin)
 		if title == "" || url == "" || seen[url] {
 			continue
 		}

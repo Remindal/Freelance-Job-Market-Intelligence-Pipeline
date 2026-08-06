@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 // TelegramNotifier 直调 Telegram Bot API，不引 SDK。

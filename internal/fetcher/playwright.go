@@ -14,18 +14,18 @@ import (
 
 	"github.com/mxschmitt/playwright-go"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 // PWFetcher 通过 CDP 接管用户已运行的真实 Chrome 抓取搜索页。
-// 不 launch 任何浏览器实例——无头/自动化指纹会被 Cloudflare 拦截，
-// 真人浏览器的指纹与登录态才是可信的。
+// 不 launch 任何浏览器实例——目标站有完善的反爬保护，
+// 复用本人浏览会话做只读、低频访问是最稳妥的方式。
 type PWFetcher struct {
 	feeds        []Feed
 	cdpEndpoint  string
 	pagesPerFeed int
 	logger       *slog.Logger
-	dumpDir      string // 环境变量 UPWORK_SCOUT_DEBUG_DUMP 开启后保存页面 HTML，便于排查选择器
+	dumpDir      string // 环境变量 SCOUT_DEBUG_DUMP 开启后保存页面 HTML，便于排查选择器
 	onFeedDone   func(feed string, index, total, jobs int)
 }
 
@@ -42,7 +42,7 @@ func NewPlaywright(feeds []Feed, cdpEndpoint string, pagesPerFeed int, logger *s
 		pagesPerFeed = 1
 	}
 	f := &PWFetcher{feeds: feeds, cdpEndpoint: cdpEndpoint, pagesPerFeed: pagesPerFeed, logger: logger}
-	if dir := os.Getenv("UPWORK_SCOUT_DEBUG_DUMP"); dir != "" {
+	if dir := os.Getenv("SCOUT_DEBUG_DUMP"); dir != "" {
 		f.dumpDir = dir
 	}
 	return f
@@ -205,7 +205,12 @@ func (f *PWFetcher) fetchPage(page playwright.Page, pageURL string) ([]domain.Jo
 	}
 	f.dumpPage("page", content)
 
-	jobs := ExtractJobsFromHTML(content, time.Now().UTC())
+	// origin 从 feed URL 推导，保证代码不硬编码站点域名
+	origin := ""
+	if u, err := url.Parse(pageURL); err == nil {
+		origin = u.Scheme + "://" + u.Host
+	}
+	jobs := ExtractJobsFromHTML(content, time.Now().UTC(), origin)
 	if len(jobs) == 0 {
 		return nil, errors.New("页面已渲染但未提取到任何卡片（选择器可能已失效）")
 	}

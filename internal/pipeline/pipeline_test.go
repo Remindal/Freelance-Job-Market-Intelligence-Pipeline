@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"upwork-scout/internal/domain"
-	"upwork-scout/internal/filter"
-	"upwork-scout/internal/store"
+	"github.com/Remindal/scout/internal/domain"
+	"github.com/Remindal/scout/internal/filter"
+	"github.com/Remindal/scout/internal/store"
 )
 
 // slowFetcher 拉取阻塞在 gate 上，用于构造「上一轮进行中」的场景。

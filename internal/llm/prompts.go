@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 // 描述截断上限，防止超长单子打爆 token。
 const maxDescRunes = 3000
 
 // 评分 system prompt 模板，{profile} 由配置的技能画像注入（唯一来源：config.yaml profile 段）。
-const scoreSystemPrompt = `你是 Upwork 职位筛选器，为固定候选人评估匹配度。只输出 JSON，不要任何多余文字。
+const scoreSystemPrompt = `你是自由职业平台的职位筛选器，为固定候选人评估匹配度。只输出 JSON，不要任何多余文字。
 
 【候选人画像】
 {profile}

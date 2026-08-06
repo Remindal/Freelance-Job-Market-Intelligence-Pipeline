@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 // ListFilter 列表查询条件，零值字段表示不限制。

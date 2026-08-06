@@ -9,7 +9,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"upwork-scout/internal/pipeline"
+	"github.com/Remindal/scout/internal/pipeline"
 )
 
 // Scheduler 封装 robfig/cron，注册 pipeline 周期执行。

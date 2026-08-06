@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 func newTestStore(t *testing.T) *SQLiteStore {

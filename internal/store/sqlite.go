@@ -10,7 +10,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 // schema 与 migrations/001_init.sql 保持一致，启动时自动执行建表。

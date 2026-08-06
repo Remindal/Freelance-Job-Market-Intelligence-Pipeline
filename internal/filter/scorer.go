@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"upwork-scout/internal/domain"
-	"upwork-scout/internal/llm"
+	"github.com/Remindal/scout/internal/domain"
+	"github.com/Remindal/scout/internal/llm"
 )
 
 // LLMChatter 抽象 LLM 能力，便于测试时替换为假实现。

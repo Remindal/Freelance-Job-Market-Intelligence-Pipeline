@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 // ClientFilter 客户质量粗筛：在 LLM 精筛之前执行，字段为 nil（未解析到）时不淘汰。

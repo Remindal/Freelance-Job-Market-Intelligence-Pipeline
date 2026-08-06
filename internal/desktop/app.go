@@ -10,10 +10,10 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"upwork-scout/internal/domain"
-	"upwork-scout/internal/pipeline"
-	"upwork-scout/internal/scheduler"
-	"upwork-scout/internal/store"
+	"github.com/Remindal/scout/internal/domain"
+	"github.com/Remindal/scout/internal/pipeline"
+	"github.com/Remindal/scout/internal/scheduler"
+	"github.com/Remindal/scout/internal/store"
 )
 
 // 数据契约：与前端 src/api/types.ts 一一对应。

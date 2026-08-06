@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"upwork-scout/internal/domain"
+	"github.com/Remindal/scout/internal/domain"
 )
 
 type Fetcher interface {

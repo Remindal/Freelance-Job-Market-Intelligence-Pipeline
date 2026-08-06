@@ -11,7 +11,7 @@ fetcher:                            # CDP 接管已运行的真实 Chrome（需�
   cdp_endpoint: "http://127.0.0.1:9222"
   pages_per_feed: 1                 # 每个源翻页数（1页≈10条），上限 5
 
-feeds:                              # 搜索页 URL，可任意增删（sort=recency 保证最新在前）
+feeds:                              # 替换为目标平台的搜索结果页 URL，可任意增删（sort=recency 保证最新在前）
   - name: "golang"
     url: "https://www.upwork.com/nx/search/jobs/?q=golang&sort=recency"
   - name: "web-scraping"
@@ -27,12 +27,12 @@ filter:
 
 llm:
   base_url: "https://api.deepseek.com/v1"   # 任意 OpenAI 兼容端点
-  api_key: ""                                # 或用环境变量 UPWORK_SCOUT_LLM_API_KEY
+  api_key: ""                                # 或用环境变量 SCOUT_LLM_API_KEY
   model: "deepseek-chat"
   timeout: 30s
 
 profile: |                          # 技能画像，注入打分 prompt
-  中国计算机专业大二学生，Go/Python 后端开发，Upwork 新号零评价，
+  中国计算机专业大二学生，Go/Python 后端开发，平台新号零评价，
   现阶段核心目标：拿下小而稳的前几单积累 5 星好评，时薪 $18。
 
   技能：Go(Gin)、Python(FastAPI)、REST API 设计与第三方 API 集成、
@@ -48,5 +48,5 @@ profile: |                          # 技能画像，注入打分 prompt
 notify:
   threshold: 70                     # ≥ 此分数才推送
   telegram:
-    bot_token: ""                   # 或环境变量 UPWORK_SCOUT_TG_TOKEN
-    chat_id: ""                     # 或环境变量 UPWORK_SCOUT_TG_CHAT_ID
+    bot_token: ""                   # 或环境变量 SCOUT_TG_TOKEN
+    chat_id: ""                     # 或环境变量 SCOUT_TG_CHAT_ID

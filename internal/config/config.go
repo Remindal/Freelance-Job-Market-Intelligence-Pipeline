@@ -86,13 +86,13 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("parse config: %w", err)
 	}
 
-	if v := os.Getenv("UPWORK_SCOUT_LLM_API_KEY"); v != "" {
+	if v := os.Getenv("SCOUT_LLM_API_KEY"); v != "" {
 		cfg.LLM.APIKey = v
 	}
-	if v := os.Getenv("UPWORK_SCOUT_TG_TOKEN"); v != "" {
+	if v := os.Getenv("SCOUT_TG_TOKEN"); v != "" {
 		cfg.Notify.Telegram.BotToken = v
 	}
-	if v := os.Getenv("UPWORK_SCOUT_TG_CHAT_ID"); v != "" {
+	if v := os.Getenv("SCOUT_TG_CHAT_ID"); v != "" {
 		cfg.Notify.Telegram.ChatID = v
 	}
 

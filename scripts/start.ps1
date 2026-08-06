@@ -1,4 +1,4 @@
-﻿# 一键启动：先确保采集 Chrome 在跑（带调试端口），再启动桌面 app
+# 一键启动：先确保采集 Chrome 在跑（带调试端口），再启动桌面 app
 $root = Split-Path $PSScriptRoot -Parent
 
 $cdpAlive = $false
@@ -13,6 +13,6 @@ if (-not $cdpAlive) {
     Start-Sleep -Seconds 3
 }
 
-if (-not (Get-Process upwork-scout -ErrorAction SilentlyContinue)) {
-    Start-Process "$root\build\bin\upwork-scout.exe"
+if (-not (Get-Process scout -ErrorAction SilentlyContinue)) {
+    Start-Process "$root\build\bin\scout.exe"
 }

@@ -1,4 +1,4 @@
-module upwork-scout
+module github.com/Remindal/scout
 
 go 1.25.0
 
