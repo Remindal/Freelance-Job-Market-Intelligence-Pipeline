@@ -1,4 +1,4 @@
-# 一键构建：编译 exe 并自动把配置同步到 exe 同级目录
+﻿# 一键构建：编译 exe 并自动把配置同步到 exe 同级目录
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
 

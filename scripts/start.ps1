@@ -1,4 +1,6 @@
-# 一键启动：先确保采集 Chrome 在跑（带调试端口），再启动桌面 app
+﻿# 一键启动：先确保采集浏览器在跑（带调试端口），再启动桌面 app。
+# 注意：app 每次都直接启动——它自己有单实例锁，
+# 若已有实例在托盘运行，会唤起其窗口并自动退出，不会开第二个进程。
 $root = Split-Path $PSScriptRoot -Parent
 
 $cdpAlive = $false
@@ -13,6 +15,4 @@ if (-not $cdpAlive) {
     Start-Sleep -Seconds 3
 }
 
-if (-not (Get-Process scout -ErrorAction SilentlyContinue)) {
-    Start-Process "$root\build\bin\scout.exe"
-}
+Start-Process "$root\build\bin\scout.exe"
