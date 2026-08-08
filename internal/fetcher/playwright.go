@@ -23,9 +23,10 @@ import (
 type PWFetcher struct {
 	feeds        []Feed
 	cdpEndpoint  string
-	pagesPerFeed int
+	pagesPerFeed int           // 翻页安全上限
+	windowDays   int           // 时间窗口：遇到早于该天数的单即停止翻页（0=不看时间，抓满上限）
 	logger       *slog.Logger
-	dumpDir      string // 环境变量 SCOUT_DEBUG_DUMP 开启后保存页面 HTML，便于排查选择器
+	dumpDir      string        // 环境变量 SCOUT_DEBUG_DUMP 开启后保存页面 HTML，便于排查选择器
 	onFeedDone   func(feed string, index, total, jobs int)
 }
 
@@ -34,14 +35,20 @@ func (f *PWFetcher) SetOnFeedDone(fn func(feed string, index, total, jobs int)) 
 	f.onFeedDone = fn
 }
 
-func NewPlaywright(feeds []Feed, cdpEndpoint string, pagesPerFeed int, logger *slog.Logger) *PWFetcher {
+func NewPlaywright(feeds []Feed, cdpEndpoint string, pagesPerFeed, windowDays int, logger *slog.Logger) *PWFetcher {
 	if cdpEndpoint == "" {
 		cdpEndpoint = "http://127.0.0.1:9222"
 	}
 	if pagesPerFeed <= 0 {
 		pagesPerFeed = 1
 	}
-	f := &PWFetcher{feeds: feeds, cdpEndpoint: cdpEndpoint, pagesPerFeed: pagesPerFeed, logger: logger}
+	f := &PWFetcher{
+		feeds:        feeds,
+		cdpEndpoint:  cdpEndpoint,
+		pagesPerFeed: pagesPerFeed,
+		windowDays:   windowDays,
+		logger:       logger,
+	}
 	if dir := os.Getenv("SCOUT_DEBUG_DUMP"); dir != "" {
 		f.dumpDir = dir
 	}
@@ -137,11 +144,32 @@ func (f *PWFetcher) fetchFeed(ctx context.Context, bctx playwright.BrowserContex
 				jobs = append(jobs, j)
 			}
 		}
+		// 时间窗口早停：本页最旧的单已超出窗口，再翻页无意义（更旧的单会被客户粗筛淘汰）
+		if f.windowDays > 0 && len(got) > 0 {
+			if oldest := oldestPosted(got); oldest != nil &&
+				time.Since(*oldest) > time.Duration(f.windowDays)*24*time.Hour {
+				break
+			}
+		}
 	}
 	if len(jobs) == 0 {
 		return nil, errors.New("页面已渲染但未提取到任何卡片（选择器可能已失效）")
 	}
 	return jobs, nil
+}
+
+// oldestPosted 返回一页单子里最旧的发布时间；全部未知返回 nil（继续翻页，保守多抓）。
+func oldestPosted(jobs []domain.Job) *time.Time {
+	var oldest *time.Time
+	for i := range jobs {
+		if jobs[i].PostedAt == nil {
+			continue
+		}
+		if oldest == nil || jobs[i].PostedAt.Before(*oldest) {
+			oldest = jobs[i].PostedAt
+		}
+	}
+	return oldest
 }
 
 // feedPageURL 给搜索 URL 追加/覆盖 page 参数。

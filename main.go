@@ -92,7 +92,9 @@ func main() {
 	for i, f := range cfg.Feeds {
 		feeds[i] = fetcher.Feed{Name: f.Name, URL: f.URL}
 	}
-	pwFetcher := fetcher.NewPlaywright(feeds, cfg.Fetcher.CDPEndpoint, cfg.Fetcher.PagesPerFeed, logger)
+	// 时间窗口与客户粗筛同源：抓到 stale_days 边界即止，窗口内新单一网打尽
+	pwFetcher := fetcher.NewPlaywright(feeds, cfg.Fetcher.CDPEndpoint, cfg.Fetcher.PagesPerFeed,
+		cfg.ClientFilter.StaleDays, logger)
 
 	rules := filter.NewRules(cfg.Filter.IncludeKeywords, cfg.Filter.ExcludeKeywords, cfg.Filter.MinBudgetUSD)
 	clientFilter := filter.NewClientFilter(cfg.ClientFilter.StaleDays)
