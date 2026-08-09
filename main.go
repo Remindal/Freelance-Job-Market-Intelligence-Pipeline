@@ -120,7 +120,7 @@ func main() {
 		_, err := pl.RunOnce(ctx)
 		return err
 	}, logger)
-	app := desktop.NewApp(st, pl, sched, cfg.Notify.Threshold, logger)
+	app := desktop.NewApp(st, pl, sched, cfg.Notify.Threshold, cfg.Fetcher.CDPEndpoint, logger)
 
 	err = wails.Run(&options.App{
 		Title:     "Scout",

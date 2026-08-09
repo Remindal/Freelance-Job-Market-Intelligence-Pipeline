@@ -11,6 +11,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"github.com/Remindal/scout/internal/domain"
+	"github.com/Remindal/scout/internal/fetcher"
 	"github.com/Remindal/scout/internal/pipeline"
 	"github.com/Remindal/scout/internal/scheduler"
 	"github.com/Remindal/scout/internal/store"
@@ -57,15 +58,17 @@ type App struct {
 	pipeline      *pipeline.Pipeline
 	scheduler     *scheduler.Scheduler
 	highScoreFrom int // 「高分待决策」阈值，取 notify.threshold
+	cdpEndpoint   string
 	logger        *slog.Logger
 }
 
-func NewApp(st store.Store, pl *pipeline.Pipeline, sched *scheduler.Scheduler, highScoreFrom int, logger *slog.Logger) *App {
+func NewApp(st store.Store, pl *pipeline.Pipeline, sched *scheduler.Scheduler, highScoreFrom int, cdpEndpoint string, logger *slog.Logger) *App {
 	return &App{
 		store:         st,
 		pipeline:      pl,
 		scheduler:     sched,
 		highScoreFrom: highScoreFrom,
+		cdpEndpoint:   cdpEndpoint,
 		logger:        logger,
 	}
 }
@@ -225,6 +228,11 @@ func (a *App) OpenInBrowser(url string) error {
 	if url == "" {
 		return errors.New("empty url")
 	}
-	runtime.BrowserOpenURL(a.ctx, url)
+	// 优先在采集浏览器里打开并提到前台（链接会落在已登录会话里，且用户看得见）；
+	// 采集浏览器未运行时退回系统默认浏览器
+	if err := fetcher.OpenURLAndFocus(a.cdpEndpoint, url); err != nil {
+		a.logger.Warn("open in scout browser failed, fallback to system default", "err", err)
+		runtime.BrowserOpenURL(a.ctx, url)
+	}
 	return nil
 }

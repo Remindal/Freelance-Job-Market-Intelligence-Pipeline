@@ -256,6 +256,50 @@ func (f *PWFetcher) fetchPage(page playwright.Page, pageURL string) ([]domain.Jo
 	return jobs, nil
 }
 
+// OpenURLAndFocus 在用户的采集浏览器里打开 URL 并把窗口提到前台。
+// Shell 方式打开的链接会静默堆在后台浏览器窗口里，用户感知不到，所以必须显式聚焦。
+func OpenURLAndFocus(cdpEndpoint, targetURL string) error {
+	pw, err := playwright.Run()
+	if err != nil {
+		return err
+	}
+	defer pw.Stop()
+	browser, err := pw.Chromium.ConnectOverCDP(cdpEndpoint)
+	if err != nil {
+		return err
+	}
+	contexts := browser.Contexts()
+	if len(contexts) == 0 {
+		return errors.New("no browser context")
+	}
+	bctx := contexts[0]
+
+	page, err := bctx.NewPage()
+	if err != nil {
+		return err
+	}
+	// 不 close：页签留给用户看
+	go func() {
+		page.Goto(targetURL, playwright.PageGotoOptions{Timeout: playwright.Float(15000)})
+	}()
+	time.Sleep(500 * time.Millisecond)
+
+	// 提到前台：窗口状态置为 normal（会聚焦）+ 页签置顶
+	if sess, err := bctx.NewCDPSession(page); err == nil {
+		if res, err := sess.Send("Browser.getWindowForTarget", nil); err == nil {
+			if m, ok := res.(map[string]any); ok {
+				if id, ok := m["windowId"]; ok {
+					sess.Send("Browser.setWindowBounds", map[string]any{
+						"windowId": id,
+						"bounds":   map[string]any{"windowState": "normal"},
+					})
+				}
+			}
+		}
+	}
+	return page.BringToFront()
+}
+
 // FetchDetailHTML 取单子详情页 HTML（复用同一 CDP 连接的一个新页签）。
 func (f *PWFetcher) FetchDetailHTML(ctx context.Context, jobURL string) (string, error) {
 	pw, err := playwright.Run()
