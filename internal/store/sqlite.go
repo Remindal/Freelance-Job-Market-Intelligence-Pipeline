@@ -398,6 +398,17 @@ func (s *SQLiteStore) Stats(ctx context.Context, highScoreThreshold int) (*Stats
 	return stats, nil
 }
 
+func (s *SQLiteStore) DeleteOlderThan(ctx context.Context, cutoff time.Time) (int64, error) {
+	// 用户标记过（想投/已投）的单永久保留，只清理新单/已淘汰/忽略/死帖
+	res, err := s.db.ExecContext(ctx,
+		`DELETE FROM jobs WHERE fetched_at < ? AND status NOT IN (?, ?)`,
+		cutoff.UTC().Format(time.RFC3339), string(domain.StatusWant), string(domain.StatusProposed))
+	if err != nil {
+		return 0, fmt.Errorf("delete old jobs: %w", err)
+	}
+	return res.RowsAffected()
+}
+
 func (s *SQLiteStore) Close() error {
 	return s.db.Close()
 }

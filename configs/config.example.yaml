@@ -3,6 +3,7 @@ server:
 
 database:
   path: "./data/scout.db"
+  retention_days: 3                 # 抓取时间超过 N 天的单自动清理（想投/已投除外），0=不清理
 
 schedule:
   interval: "15m"                   # 下限 10m，过低会触发反爬
@@ -16,6 +17,14 @@ feeds:                              # 替换为目标平台的搜索结果页 UR
     url: "https://www.upwork.com/nx/search/jobs/?q=golang&sort=recency"
   - name: "web-scraping"
     url: "https://www.upwork.com/nx/search/jobs/?q=web%20scraping&sort=recency"
+  - name: "backend-developer"
+    url: "https://www.upwork.com/nx/search/jobs/?q=backend%20developer&sort=recency"
+  - name: "api-integration"
+    url: "https://www.upwork.com/nx/search/jobs/?q=api%20integration&sort=recency"
+  - name: "fastapi"
+    url: "https://www.upwork.com/nx/search/jobs/?q=fastapi&sort=recency"
+  - name: "python-automation"
+    url: "https://www.upwork.com/nx/search/jobs/?q=python%20automation&sort=recency"
 
 client_filter:                      # 客户质量粗筛（LLM 之前）
   stale_days: 2                     # 发布超过 N 天的单子直接淘汰

@@ -284,3 +284,47 @@ func TestStats(t *testing.T) {
 		t.Errorf("90+ bucket = %d, want 1", stats.ScoreDistribution[3].Count)
 	}
 }
+
+func TestDeleteOlderThan(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+
+	old := time.Now().UTC().AddDate(0, 0, -5)
+	fresh := time.Now().UTC()
+
+	seedJobs := []struct {
+		url    string
+		status domain.Status
+		at     time.Time
+	}{
+		{"https://example.com/old-new", domain.StatusNew, old},
+		{"https://example.com/old-rejected", domain.StatusRejected, old},
+		{"https://example.com/old-want", domain.StatusWant, old},
+		{"https://example.com/old-proposed", domain.StatusProposed, old},
+		{"https://example.com/fresh-new", domain.StatusNew, fresh},
+	}
+	for _, item := range seedJobs {
+		j := sampleJob(item.url)
+		j.Status = item.status
+		j.FetchedAt = item.at
+		if _, err := s.InsertIfNew(ctx, j); err != nil {
+			t.Fatalf("insert: %v", err)
+		}
+	}
+
+	deleted, err := s.DeleteOlderThan(ctx, time.Now().UTC().AddDate(0, 0, -3))
+	if err != nil {
+		t.Fatalf("delete: %v", err)
+	}
+	if deleted != 2 {
+		t.Fatalf("deleted = %d, want 2 (old new + old rejected)", deleted)
+	}
+
+	_, total, err := s.List(ctx, ListFilter{})
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if total != 3 {
+		t.Fatalf("remaining = %d, want 3 (want + proposed + fresh)", total)
+	}
+}

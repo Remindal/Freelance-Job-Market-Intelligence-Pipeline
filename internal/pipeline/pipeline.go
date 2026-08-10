@@ -52,6 +52,7 @@ type Pipeline struct {
 	scorer       *filter.Scorer // 可为 nil（未配置 LLM 时跳过分）
 	notifiers    []notify.Notifier
 	threshold    int
+	retentionDays int // 数据保留天数，0=不自动清理
 	logger       *slog.Logger
 
 	mu         sync.Mutex   // 防重入：cron 与手动触发共用同一把锁
@@ -84,6 +85,9 @@ func New(
 		logger:       logger,
 	}
 }
+
+// SetRetentionDays 设置数据保留天数（0=不清理），每轮结束自动执行一次清理。
+func (p *Pipeline) SetRetentionDays(days int) { p.retentionDays = days }
 
 // SetOnChange 注册轮次结束回调。
 func (p *Pipeline) SetOnChange(fn func()) { p.onChange = fn }
@@ -212,6 +216,16 @@ func (p *Pipeline) Run(ctx context.Context) RoundResult {
 	log.Info("pipeline round finished",
 		"fetched", len(jobs), "new", newCount, "dup", dupCount, "rejected", rejectedCount)
 	p.emit(Progress{Stage: "done", New: newCount, Fetched: len(jobs)})
+
+	// 过期数据清理（抓取时间超窗的新单/已淘汰/忽略/死帖）
+	if p.retentionDays > 0 {
+		cutoff := time.Now().UTC().AddDate(0, 0, -p.retentionDays)
+		if n, err := p.store.DeleteOlderThan(ctx, cutoff); err != nil {
+			log.Warn("retention cleanup failed", "err", err)
+		} else if n > 0 {
+			log.Info("retention cleanup done", "deleted", n)
+		}
+	}
 	return RoundResult{Fetched: len(jobs), New: newCount, Dup: dupCount, Rejected: rejectedCount}
 }
 

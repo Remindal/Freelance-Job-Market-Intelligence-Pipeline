@@ -34,6 +34,9 @@ func (fakeStore) UpdateScore(ctx context.Context, id int64, score int, reason st
 }
 func (fakeStore) UpdateStatus(ctx context.Context, id int64, s domain.Status) error { return nil }
 func (fakeStore) UpdateClientInfo(ctx context.Context, id int64, j domain.Job) error { return nil }
+func (fakeStore) DeleteOlderThan(ctx context.Context, cutoff time.Time) (int64, error) {
+	return 0, nil
+}
 func (fakeStore) Get(ctx context.Context, id int64) (*domain.Job, error) {
 	return nil, errors.New("not found")
 }

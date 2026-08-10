@@ -116,6 +116,7 @@ func main() {
 	}
 
 	pl := pipeline.New(pwFetcher, st, rules, clientFilter, scorer, notifiers, cfg.Notify.Threshold, logger)
+	pl.SetRetentionDays(cfg.Database.RetentionDays)
 	sched := scheduler.New(cfg.Schedule.Interval, func(ctx context.Context) error {
 		_, err := pl.RunOnce(ctx)
 		return err

@@ -52,5 +52,7 @@ type Store interface {
 	List(ctx context.Context, f ListFilter) ([]domain.Job, int, error)
 	// Stats 仪表盘统计，highScoreThreshold 为「高分待决策」的分数下限。
 	Stats(ctx context.Context, highScoreThreshold int) (*Stats, error)
+	// DeleteOlderThan 删除抓取时间早于 cutoff 的单子（想投/已投的用户标记单除外），返回删除条数。
+	DeleteOlderThan(ctx context.Context, cutoff time.Time) (int64, error)
 	Close() error
 }

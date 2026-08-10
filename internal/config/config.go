@@ -28,6 +28,8 @@ type ServerConfig struct {
 
 type DatabaseConfig struct {
 	Path string `yaml:"path"`
+	// RetentionDays 数据保留天数，超过自动清理（0=不清理；想投/已投标记单不受清理）
+	RetentionDays int `yaml:"retention_days"`
 }
 
 type ScheduleConfig struct {
